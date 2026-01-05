@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FUN OWNER – USERS ADMIN</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:Inter,system-ui,Arial;
+  background:linear-gradient(180deg,#020617,#071426);
+  color:#e5e7eb;
+  padding:16px;
+}
+.wrap{max-width:500px;margin:auto}
+h1{font-size:20px;margin:0 0 6px}
+.small{font-size:13px;color:#94a3b8}
+
+.card{
+  background:#020617;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:14px;
+  padding:16px;
+  margin-top:20px;
+  text-align:center;
+}
+
+.btn{
+  padding:14px;
+  width:100%;
+  border-radius:12px;
+  border:0;
+  font-weight:700;
+  cursor:pointer;
+  background:linear-gradient(90deg,#34d399,#22d3ee);
+  color:#022c22;
+}
+
+/* ===== DIALOG ===== */
+.dialog-bg{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+.dialog{
+  background:#020617;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:18px;
+  width:90%;
+  max-width:360px;
+}
+.dialog h2{
+  font-size:16px;
+  margin:0 0 10px;
+}
+.dialog input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.1);
+  background:transparent;
+  color:#fff;
+}
+.dialog .row{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+.dialog .cancel{
+  flex:1;
+  background:#1f2933;
+  color:#fff;
+}
+.dialog .add{
+  flex:1;
+  background:linear-gradient(90deg,#34d399,#22d3ee);
+  color:#022c22;
+  border:0;
+  font-weight:700;
+}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#020617;
+  border:1px solid rgba(255,255,255,.12);
+  padding:12px 18px;
+  border-radius:30px;
+  font-size:14px;
+  display:none;
+  z-index:2000;
+}
+.toast.success{color:#34d399}
+.toast.error{color:#f87171}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <h1>FUN OWNER – USERS</h1>
+  <div class="small">(Made by @FUN_786)</div>
+
+  <div class="card">
+    <button class="btn" id="openDialog">ADD USER</button>
+  </div>
+</div>
+
+<!-- ===== ADD USER DIALOG ===== -->
+<div class="dialog-bg" id="dialogBg">
+  <div class="dialog">
+    <h2>Add User</h2>
+    <input id="mobile" placeholder="Enter mobile number">
+    <div class="row">
+      <button class="btn cancel" id="closeDialog">Cancel</button>
+      <button class="btn add" id="addUser">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<!-- Firebase config -->
+<script type="application/json" id="FIREBASE_CONFIG">
+{
+  "apiKey": "AIzaSyCKyMh58i2FM5dVc3FWvXPPjeAljmiXK54",
+  "databaseURL": "https://pythonv1-b5a8b-default-rtdb.firebaseio.com",
+  "projectId": "krsch-e6f64",
+  "appId": "1:216050966238:android:b3441568eeba095f5d6c4f"
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+const cfg = JSON.parse(document.getElementById("FIREBASE_CONFIG").textContent);
+const app = initializeApp(cfg);
+const db = getDatabase(app);
+
+const dialogBg = document.getElementById("dialogBg");
+const mobile = document.getElementById("mobile");
+const toast = document.getElementById("toast");
+
+function showToast(msg,type="success"){
+  toast.textContent = msg;
+  toast.className = "toast "+type;
+  toast.style.display = "block";
+  setTimeout(()=>toast.style.display="none",2000);
+}
+
+function now(){
+  return new Date().toLocaleString();
+}
+
+document.getElementById("openDialog").onclick=()=>{
+  dialogBg.style.display="flex";
+  mobile.value="";
+};
+
+document.getElementById("closeDialog").onclick=()=>{
+  dialogBg.style.display="none";
+};
+
+document.getElementById("addUser").onclick = async ()=>{
+  const m = mobile.value.trim();
+  if(!m){
+    showToast("Enter mobile number","error");
+    return;
+  }
+
+  await set(ref(db,"dbRef/"+m),{
+    mobile:m,
+    balance:"0",
+    brand:"Owner",
+    time:now()
+  });
+
+  dialogBg.style.display="none";
+  showToast("User added successfully","success");
+};
+</script>
+
+</body>
+</html>
